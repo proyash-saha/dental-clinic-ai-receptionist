@@ -4,7 +4,7 @@ import express from "express";
 
 import { router as twilioRoutes } from "./routes/twilio.js";
 
-import { PatientsDB } from "./lib/patients-db.js";
+import { PatientsDB } from "./database/patients-db.js";
 
 const port = 3000;
 const app = express();

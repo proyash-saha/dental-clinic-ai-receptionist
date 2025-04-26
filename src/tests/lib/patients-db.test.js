@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "@jest/globals";
 
-import { PatientsDB } from "../../lib/patients-db.js";
+import { PatientsDB } from "../../database/patients-db.js";
 import fs from "fs";
 
 const TEST_DB_FILE_PATH = "src/tests/lib/test-patients.json";

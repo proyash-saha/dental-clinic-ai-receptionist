@@ -44,9 +44,7 @@ export class PatientsDB {
                 fs.writeFileSync(this.filePath, JSON.stringify([], null, 2));
             }
         } catch (error) {
-            throw new Error(
-                `[patients-db.js] [initializeDatabase()] - Failed to initialize database. Error: \n${JSON.stringify(error.message, null, 2)}`
-            );
+            throw new Error(`[patients-db.js] [initializeDatabase()] - Failed to initialize database. Error: \n${JSON.stringify(error.message, null, 2)}`);
         }
     }
 
@@ -60,9 +58,7 @@ export class PatientsDB {
         try {
             fs.writeFileSync(this.filePath, JSON.stringify(patients, null, 2));
         } catch (error) {
-            throw new Error(
-                `[patients-db.js] [writePatients()] - Failed to write patients to database. Error: \n${JSON.stringify(error.message, null, 2)}`
-            );
+            throw new Error(`[patients-db.js] [writePatients()] - Failed to write patients to database. Error: \n${JSON.stringify(error.message, null, 2)}`);
         }
     }
 
@@ -77,9 +73,7 @@ export class PatientsDB {
             const data = fs.readFileSync(this.filePath, "utf8");
             return JSON.parse(data);
         } catch (error) {
-            throw new Error(
-                `[patients-db.js] [getAllPatients()] - Failed to retrieve all patients from database. Error: \n${JSON.stringify(error.message, null, 2)}`
-            );
+            throw new Error(`[patients-db.js] [getAllPatients()] - Failed to retrieve all patients from database. Error: \n${JSON.stringify(error.message, null, 2)}`);
         }
     }
 
