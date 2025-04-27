@@ -3,7 +3,7 @@ import "dotenv/config";
 import express from "express";
 
 import { STATUS } from "../utils/api-response";
-import { isValidPhoneNumber } from "../utils/strings.js";
+import { REQUIRED_PATIENT_FIELDS, isValidPhoneNumber } from "../utils/strings.js";
 
 const router = express.Router();
 

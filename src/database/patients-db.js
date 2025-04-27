@@ -1,17 +1,15 @@
-import { isValidPhoneNumber } from "../utils/strings.js";
+import { REQUIRED_PATIENT_FIELDS, isValidPhoneNumber } from "../utils/strings.js";
 
 import fs from "fs";
-
-const REQUIRED_PATIENT_FIELDS = ["phoneNumber", "email", "firstName", "lastName", "createdAt", "modifiedAt"];
 
 /**
  * A simple patient database that stores patient records in a JSON file.
  * Each patient is uniquely identified by their phone number.
+ * Each patient record must include: phoneNumber, email, firstName, lastName, createdAt, and modifiedAt.
  */
 export class PatientsDB {
     /**
-     * Creates a new PatientDB instance.
-     * @param {String} [filePath="patients-db.json"] - Path to the JSON database file.
+     * @param {String} [filePath="src/database/patients.json"] - Path to the JSON database file.
      */
     constructor(filePath = "src/database/patients.json") {
         this.filePath = filePath;
@@ -19,9 +17,9 @@ export class PatientsDB {
     }
 
     /**
-     * Initializes the database file if it doesn't exist.
+     * Initializes the database by creating the file if it doesn't exist.
      *
-     * @throws {Error} If database initialization fails.
+     * @throws {Error} If file creation fails.
      */
     initializeDatabase() {
         try {
@@ -34,10 +32,12 @@ export class PatientsDB {
     }
 
     /**
-     * Writes patients to the database file.
-     * @param {Object[]} patients - Array of patient objects to write.
+     * Overwrites the database with a new array of patients.
      *
-     * @throws {Error} If writing to the file fails.
+     * @param {Object[]} patients - Array of patient objects to store.
+     *
+     * @returns {Promise<void>}
+     * @throws {Error} If writing fails.
      */
     async writePatients(patients) {
         try {
@@ -54,8 +54,8 @@ export class PatientsDB {
     /**
      * Retrieves all patients from the database.
      *
-     * @returns {Promise<Object[]>} Array of patient objects.
-     * @throws {Error} If reading from the file fails.
+     * @returns {Promise<Object[]>} List of all patient records.
+     * @throws {Error} If reading fails.
      */
     async getAllPatients() {
         try {
@@ -67,11 +67,12 @@ export class PatientsDB {
     }
 
     /**
-     * Retrieves a patient by their phone number.
-     * @param {String} phoneNumber - The phone number to search patient by.
+     * Retrieves a patient by phone number.
      *
-     * @returns {Promise<Object|null>} The patient object if found, otherwise null.
-     * @throws {Error} If an error occurs during the search.
+     * @param {String} phoneNumber - Patient's 10-digit phone number.
+     *
+     * @returns {Promise<Object|null>} The matching patient, or null if not found.
+     * @throws {Error} If phone number is invalid or retrieval fails.
      */
     async getPatientByPhoneNumber(phoneNumber) {
         try {
@@ -90,13 +91,17 @@ export class PatientsDB {
 
     /**
      * Adds a new patient to the database.
-     * @param {Object} patientInfo - The patient object to add.
-     * @param {String} patientInfo.phoneNumber - The patient's phone number (required, unique).
-     * @param {String} patientInfo.firstName - The patient's first name (required).
-     * @param {String} patientInfo.lastName - The patient's last name (required).
      *
-     * @returns {Promise<Object>} The added patient object.
-     * @throws {Error} If required fields are missing or phone number already exists.
+     * @param {Object} patientInfo - Patient data.
+     * @param {String} patientInfo.phoneNumber - Patient's phone number (unique).
+     * @param {String} patientInfo.email - Patient's email.
+     * @param {String} patientInfo.firstName - Patient's first name.
+     * @param {String} patientInfo.lastName - Patient's last name.
+     * @param {String} patientInfo.createdAt - ISO timestamp when the patient record was created.
+     * @param {String} patientInfo.modifiedAt - ISO timestamp when the patient record was last modified.
+     *
+     * @returns {Promise<Object>} The newly added patient record.
+     * @throws {Error} If required fields are missing or patient already exists.
      */
     async addPatient(patientInfo) {
         try {
@@ -104,13 +109,11 @@ export class PatientsDB {
                 throw new Error(`Invalid patient info. It must be an object. patientInfo = ${patientInfo}`);
             }
 
-            // Validate required fields
             const missingFields = REQUIRED_PATIENT_FIELDS.filter((field) => patientInfo[field] === undefined);
             if (missingFields.length > 0) {
                 throw new Error(`Missing required fields for new patient: ${missingFields.join(", ")}`);
             }
 
-            // Check if patient already exists
             const existingPatient = await this.getPatientByPhoneNumber(patientInfo.phoneNumber);
             if (existingPatient) {
                 throw new Error(`Patient with phone number: ${patientInfo.phoneNumber} already exists.`);
@@ -128,10 +131,11 @@ export class PatientsDB {
 
     /**
      * Updates an existing patient's information.
-     * @param {String} phoneNumber - The phone number of the patient to update.
-     * @param {Object} patientInfo - The fields to update (cannot include phoneNumber).
      *
-     * @returns {Promise<Object>} The updated patient object.
+     * @param {String} phoneNumber - Patient's phone number.
+     * @param {Object} patientInfo - Fields to update (cannot include phoneNumber).
+     *
+     * @returns {Promise<Object>} The updated patient record.
      * @throws {Error} If patient doesn't exist or trying to change phone number.
      */
     async updatePatient(phoneNumber, patientInfo) {
@@ -151,14 +155,13 @@ export class PatientsDB {
                 throw new Error(`Patient with phone number: ${phoneNumber} does not exist.`);
             }
 
-            // Don't allow changing phone number (used as ID)
             if (patientInfo.phoneNumber && patientInfo.phoneNumber !== phoneNumber) {
                 throw new Error("Patient phone number cannot be updated.");
             }
 
-            // Merge the updated info with the existing patient data
             patients[patientIndex] = { ...patients[patientIndex], ...patientInfo };
             await this.writePatients(patients);
+
             return patients[patientIndex];
         } catch (error) {
             throw new Error(`[patients-db.js] [updatePatient()] - Failed to update patient. Error: \n${JSON.stringify(error.message, null, 2)}`);
@@ -166,9 +169,11 @@ export class PatientsDB {
     }
 
     /**
-     * Deletes a patient from the database.
-     * @param {String} phoneNumber - The phone number of the patient to delete.
+     * Deletes a patient by phone number.
      *
+     * @param {String} phoneNumber - Phone number of the patient to delete.
+     *
+     * @returns {Promise<void>}
      * @throws {Error} If patient doesn't exist.
      */
     async deletePatient(phoneNumber) {
@@ -191,11 +196,12 @@ export class PatientsDB {
     }
 
     /**
-     * Searches for patients matching the given query.
-     * @param {Object} query - The search criteria (e.g., { firstName: "John" }).
+     * Searches patients by given fields.
      *
-     * @returns {Promise<Object[]>} Array of matching patient objects.
-     * @throws {Error} If an error occurs during the search.
+     * @param {Object} query - Key-value pairs to match (supports partial match for strings).
+     *
+     * @returns {Promise<Object[]>} List of matching patients.
+     * @throws {Error} If search fails.
      */
     async searchPatients(query) {
         try {
@@ -206,11 +212,9 @@ export class PatientsDB {
             const patients = await this.getAllPatients();
             return patients.filter((patient) => {
                 return Object.keys(query).every((key) => {
-                    // Case-insensitive partial match for string fields
                     if (typeof patient[key] === "string" && typeof query[key] === "string") {
                         return patient[key].toLowerCase().includes(query[key].toLowerCase());
                     }
-                    // Exact match for other fields
                     return patient[key] === query[key];
                 });
             });
