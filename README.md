@@ -1,4 +1,4 @@
-# AI Dental Receptionist
+# Dental Clinic AI Receptionist
 
 An AI-powered receptionist for a dental clinic, leveraging **Ultravox.ai** and **Twilio** to handle patient interactions, appointment bookings, and emergency notifications. This project automates routine tasks, enabling the clinic staff to focus on providing excellent care.
 
@@ -111,13 +111,6 @@ classDiagram
         +searchPatients(query)
     }
 
-    class Logger {
-        +info(message)
-        +debug(message)
-        +warn(message)
-        +error(message)
-    }
-
     class TwilioRouter {
         +POST /twilio/incoming
     }
@@ -149,11 +142,7 @@ classDiagram
         +listen()
     }
 
-    PatientsDB --> Logger : uses
-    TwilioRouter --> Logger : uses
-    PatientsRouter --> Logger : uses
-    AppointmentsRouter --> Logger : uses
-    AlertsRouter --> Logger : uses
+    PatientsRouter --> PatientsDB : uses
     TwilioRouter --> Ultravox : uses
     Ultravox --> UltravoxConfig : uses
     MainApp --> PatientsDB : initializes
