@@ -3,19 +3,21 @@ import "dotenv/config";
 import express from "express";
 
 import { STATUS } from "../utils/api-response";
+import { getCurrentDateTimeInUTC } from "../utils/date-time.js";
+import { logger } from "../utils/logger.js";
 import { REQUIRED_PATIENT_FIELDS, isValidPhoneNumber } from "../utils/strings.js";
 
 const router = express.Router();
 
 router.get("/", async (req, res) => {
-    console.info(`[patients.js] [GET /patients] - Received request to get patient by phone number. \nRequest query: ${JSON.stringify(req.query, null, 2)}`);
+    logger.info(`[patients.js] [GET /patients] - Received request to get patient by phone number. \nRequest query: ${JSON.stringify(req.query, null, 2)}`);
 
     try {
         const db = req.app.locals.db;
         const { phoneNumber } = req.query;
 
         if (!isValidPhoneNumber(phoneNumber)) {
-            console.error(`[patients.js] [GET /patients] - Missing or invalid format for phone number in request. Phone number: ${phoneNumber}.`);
+            logger.error(`[patients.js] [GET /patients] - Missing or invalid format for phone number in request. Phone number: ${phoneNumber}.`);
             return res.status(STATUS.BAD_REQUEST).json({
                 message: "Invalid phone number. It must be a 10-digit number."
             });
@@ -24,7 +26,7 @@ router.get("/", async (req, res) => {
         const patient = await db.getPatientByPhoneNumber(phoneNumber);
 
         if (!patient || typeof patient !== "object" || Object.keys(patient).length === 0) {
-            console.error(`[patients.js] [GET /patients] - Patient not found for phone number: ${phoneNumber}.`);
+            logger.error(`[patients.js] [GET /patients] - Patient not found for phone number: ${phoneNumber}.`);
             return res.status(STATUS.NOT_FOUND).json({
                 message: "Patient not found."
             });
@@ -33,13 +35,14 @@ router.get("/", async (req, res) => {
         res.status(STATUS.OK).json({
             message: "Patient found.",
             patient: {
-                firstName: patient.firstName,
-                lastName: patient.lastName,
                 phoneNumber: patient.phoneNumber,
-                email: patient.email
+                email: patient.email,
+                firstName: patient.firstName,
+                lastName: patient.lastName
             }
         });
     } catch (error) {
+        logger.error(`[patients.js] [GET /patients] - Error while trying to retrieve a patient. \nError: ${JSON.stringify(error, null, 2)}`);
         res.status(STATUS.INTERNAL_SERVER_ERROR).json({
             message: "Internal Server Error.",
             error: error.message
@@ -48,11 +51,15 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-    console.info(`[patients.js] [POST /patients] - Received request to create a new patient. \nRequest body: ${JSON.stringify(req.body, null, 2)}`);
+    logger.info(`[patients.js] [POST /patients] - Received request to create a new patient from database. \nRequest body: ${JSON.stringify(req.body, null, 2)}`);
 
     try {
         const db = req.app.locals.db;
         const patientInfo = req.body;
+
+        patientInfo.initialCallbackComplete = false;
+        patientInfo.createdAt = getCurrentDateTimeInUTC();
+        patientInfo.modifiedAt = getCurrentDateTimeInUTC();
 
         const missingInfo = REQUIRED_PATIENT_FIELDS.filter((field) => patientInfo[field] === undefined);
         if (missingInfo.length > 0) {
@@ -63,10 +70,17 @@ router.post("/", async (req, res) => {
 
         await db.addPatient(patientInfo);
 
+        // Notify the clinic for "new patient callback"
+        // We could put the patient info in a message queue that:
+        //  - Sends an email to the clinic
+        //  - Sends a text message to the clinic
+        //  - Sends a message to the clinic's internal system through a webhook
+
         res.status(STATUS.OK).json({
             message: "Patient created in database."
         });
     } catch (error) {
+        logger.error(`[patients.js] [POST /patients] - Error while trying to create a patient in database. \nError: ${JSON.stringify(error, null, 2)}`);
         res.status(STATUS.INTERNAL_SERVER_ERROR).json({
             message: "Internal Server Error.",
             error: error.message

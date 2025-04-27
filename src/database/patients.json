@@ -4,15 +4,7 @@
         "email": "proyashsaha@gmail.com",
         "firstName": "Proyash",
         "lastName": "Saha",
-        "age": 27,
-        "streetAddress": "123 Main St",
-        "city": "Toronto",
-        "province": "ON",
-        "postalCode": "A1A1A1",
-        "emergencyContactName": "Jane Doe",
-        "emergencyContactPhone": "11122233333",
-        "emergencyContactRelationship": "Sister",
-        "notes": "No known allergies",
+        "initialCallbackComplete": true,
         "createdAt": "2023-10-01T12:00:00Z",
         "modifiedAt": "2023-10-01T12:00:00Z"
     }
