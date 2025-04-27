@@ -2,6 +2,7 @@ import "dotenv/config";
 
 import express from "express";
 
+import { router as patientsRoutes } from "./routes/patients.js";
 import { router as twilioRoutes } from "./routes/twilio.js";
 
 import { PatientsDB } from "./database/patients-db.js";
@@ -17,8 +18,10 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/twilio", twilioRoutes);
 
+app.use("/patients", patientsRoutes);
+
 app.get("/", (req, res) => {
-    res.send("AI denatal receptionist agent is live!");
+    res.send("Dental clinic AI receptionist agent is live!");
 });
 
 app.listen(port, () => {

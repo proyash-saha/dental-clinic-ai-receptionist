@@ -14,7 +14,6 @@ const REQUIRED_PATIENT_FIELDS = [
     "emergencyContactPhone",
     "emergencyContactRelationship",
     "notes",
-    "callback",
     "createdAt",
     "modifiedAt"
 ];
@@ -97,32 +96,33 @@ export class PatientsDB {
 
     /**
      * Adds a new patient to the database.
-     * @param {Object} patient - The patient object to add.
-     * @param {String} patient.phoneNumber - The patient's phone number (required, unique).
-     * @param {String} patient.firstName - The patient's first name (required).
-     * @param {String} patient.lastName - The patient's last name (required).
+     * @param {Object} patientInfo - The patient object to add.
+     * @param {String} patientInfo.phoneNumber - The patient's phone number (required, unique).
+     * @param {String} patientInfo.firstName - The patient's first name (required).
+     * @param {String} patientInfo.lastName - The patient's last name (required).
      *
      * @returns {Promise<Object>} The added patient object.
      * @throws {Error} If required fields are missing or phone number already exists.
      */
-    async addPatient(patient) {
+    async addPatient(patientInfo) {
         try {
             // Validate required fields
-            const missingFields = REQUIRED_PATIENT_FIELDS.filter((field) => patient[field] === undefined);
+            const missingFields = REQUIRED_PATIENT_FIELDS.filter((field) => patientInfo[field] === undefined);
             if (missingFields.length > 0) {
                 throw new Error(`Missing required fields for new patient: ${missingFields.join(", ")}`);
             }
 
             // Check if patient already exists
-            const existingPatient = await this.getPatientByPhoneNumber(patient.phoneNumber);
+            const existingPatient = await this.getPatientByPhoneNumber(patientInfo.phoneNumber);
             if (existingPatient) {
-                throw new Error(`Patient with phone number: ${patient.phoneNumber} already exists.`);
+                throw new Error(`Patient with phone number: ${patientInfo.phoneNumber} already exists.`);
             }
 
             const patients = await this.getAllPatients();
-            patients.push(patient);
+            patients.push(patientInfo);
             await this.writePatients(patients);
-            return patient;
+
+            return patientInfo;
         } catch (error) {
             throw new Error(`[patients-db.js] [addPatient()] - Failed to add a new patient. Error: \n${JSON.stringify(error.message, null, 2)}`);
         }
@@ -131,12 +131,12 @@ export class PatientsDB {
     /**
      * Updates an existing patient's information.
      * @param {String} phoneNumber - The phone number of the patient to update.
-     * @param {Object} updatedInfo - The fields to update (cannot include phoneNumber).
+     * @param {Object} patientInfo - The fields to update (cannot include phoneNumber).
      *
      * @returns {Promise<Object>} The updated patient object.
      * @throws {Error} If patient doesn't exist or trying to change phone number.
      */
-    async updatePatient(phoneNumber, updatedInfo) {
+    async updatePatient(phoneNumber, patientInfo) {
         try {
             const patients = await this.getAllPatients();
             const patientIndex = patients.findIndex((p) => p.phoneNumber === phoneNumber);
@@ -146,12 +146,12 @@ export class PatientsDB {
             }
 
             // Don't allow changing phone number (used as ID)
-            if (updatedInfo.phoneNumber && updatedInfo.phoneNumber !== phoneNumber) {
+            if (patientInfo.phoneNumber && patientInfo.phoneNumber !== phoneNumber) {
                 throw new Error("Patient phone number cannot be updated.");
             }
 
             // Merge the updated info with the existing patient data
-            patients[patientIndex] = { ...patients[patientIndex], ...updatedInfo };
+            patients[patientIndex] = { ...patients[patientIndex], ...patientInfo };
             await this.writePatients(patients);
             return patients[patientIndex];
         } catch (error) {

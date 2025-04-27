@@ -7,24 +7,13 @@ import { createUltravoxCall } from "../lib/ultravox.js";
 
 import { ULTRAVOX_CALL_CONFIG } from "../utils/ultravox-config.js";
 
-// Hack: Dictionary to store Twilio CallSid and Ultravox Call ID mapping
-// In production you will want to replace this with something more durable
-const activeCalls = new Map();
-
 const router = express.Router();
 
 router.post("/incoming", async (req, res) => {
+    console.info(`[twilio.js] [POST /twilio/incoming] - Received incoming call. \nRequest body: ${JSON.stringify(req.body, null, 2)}`);
+
     try {
-        console.log("Incoming call received");
-
-        const twilioCallSid = req.body.CallSid;
-
         const response = await createUltravoxCall(ULTRAVOX_CALL_CONFIG);
-
-        activeCalls.set(response.callId, {
-            twilioCallSid,
-            type: "inbound"
-        });
 
         const twiml = new twilio.twiml.VoiceResponse();
         const connect = twiml.connect();
@@ -36,9 +25,11 @@ router.post("/incoming", async (req, res) => {
         res.type("text/xml");
         res.send(twiml.toString());
     } catch (error) {
-        console.error("Error handling incoming call:", error);
+        console.error(`[twilio.js] [POST /twilio/incoming] - Error handling incoming call. \n${JSON.stringify(error, null, 2)}`);
+
         const twiml = new twilio.twiml.VoiceResponse();
         twiml.say("Sorry, there was an error connecting your call.");
+
         res.type("text/xml");
         res.send(twiml.toString());
     }
