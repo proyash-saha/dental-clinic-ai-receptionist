@@ -10,16 +10,6 @@ const mockPatient = {
     email: "john@example.com",
     firstName: "John",
     lastName: "Doe",
-    age: 30,
-    streetAddress: "123 Main St",
-    city: "Toronto",
-    province: "ON",
-    postalCode: "A1A1A1",
-    emergencyContactName: "Jane Doe",
-    emergencyContactPhone: "11122233333",
-    emergencyContactRelationship: "sister",
-    notes: "No known allergies",
-    callback: false,
     createdAt: "2023-10-01T12:00:00Z",
     modifiedAt: "2023-10-01T12:00:00Z"
 };
@@ -102,6 +92,15 @@ describe("PatientsDB", () => {
             expect(patient).toBeNull();
         });
 
+        it("should throw an error when phoneNumber is invalid", async () => {
+            try {
+                await db.getPatientByPhoneNumber("1234");
+            } catch (error) {
+                expect(error).toBeInstanceOf(Error);
+                expect(error.message).toContain("Invalid phone number. It must be a 10-digit number.");
+            }
+        });
+
         it("should throw an error when retrieving patient by phone number fails", async () => {
             // Simulate a failure by writing invalid JSON to the file
             fs.writeFileSync(TEST_DB_FILE_PATH, "broken json");
@@ -122,6 +121,16 @@ describe("PatientsDB", () => {
             await db.addPatient(mockPatient);
             const patientsAfter = await db.getAllPatients();
             expect(patientsAfter).toEqual([mockPatient]);
+        });
+
+        it("should throw an error when patientInfo is not an object", async () => {
+            try {
+                const patientInfo = "not an object";
+                await db.addPatient(patientInfo);
+            } catch (error) {
+                expect(error).toBeInstanceOf(Error);
+                expect(error.message).toContain("Invalid patient info. It must be an object.");
+            }
         });
 
         it("should throw an error when required fields are missing", async () => {
@@ -170,6 +179,28 @@ describe("PatientsDB", () => {
             }
         });
 
+        it("should throw an error when phoneNumber is invalid", async () => {
+            try {
+                await db.addPatient(mockPatient);
+                const updatedPatientInfo = { firstName: "Jane" };
+                await db.updatePatient("1234", updatedPatientInfo);
+            } catch (error) {
+                expect(error).toBeInstanceOf(Error);
+                expect(error.message).toContain("Invalid phone number. It must be a 10-digit number.");
+            }
+        });
+
+        it("should throw an error when patientInfo is not an object", async () => {
+            try {
+                await db.addPatient(mockPatient);
+                const updatedPatientInfo = "not an object";
+                await db.updatePatient("1234567890", updatedPatientInfo);
+            } catch (error) {
+                expect(error).toBeInstanceOf(Error);
+                expect(error.message).toContain("Invalid patient info. It must be an object.");
+            }
+        });
+
         it("should throw an error when patient to be updated does not exist in database", async () => {
             try {
                 await db.addPatient(mockPatient);
@@ -193,6 +224,16 @@ describe("PatientsDB", () => {
             expect(patientsAfter).toEqual([]);
         });
 
+        it("should throw an error when phoneNumber is invalid", async () => {
+            try {
+                await db.addPatient(mockPatient);
+                await db.deletePatient("1234");
+            } catch (error) {
+                expect(error).toBeInstanceOf(Error);
+                expect(error.message).toContain("Invalid phone number. It must be a 10-digit number.");
+            }
+        });
+
         it("should throw an error when patient to be deleted does not exist in database", async () => {
             try {
                 await db.addPatient(mockPatient);
@@ -212,15 +253,25 @@ describe("PatientsDB", () => {
             expect(result[0].firstName).toBe("John");
         });
 
-        it("should return empty array if no match is found", async () => {
-            const result = await db.searchPatients({ city: "Nonexistent" });
+        it("should return an empty array if no match is found", async () => {
+            const result = await db.searchPatients({ lastName: "invalidLastName" });
             expect(result).toEqual([]);
         });
 
-        it("should match by exact values for non-string fields", async () => {
+        it("should return an empty array when search is done on a field that does not exist in the database for a patient", async () => {
             await db.addPatient(mockPatient);
             const result = await db.searchPatients({ age: 30 });
-            expect(result.length).toBe(1);
+            expect(result.length).toBe(0);
+        });
+
+        it("should throw an error when patientInfo is not an object", async () => {
+            try {
+                await db.addPatient(mockPatient);
+                await db.searchPatients("not an object");
+            } catch (error) {
+                expect(error).toBeInstanceOf(Error);
+                expect(error.message).toContain("Invalid query. It must be an object.");
+            }
         });
     });
 });

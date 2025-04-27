@@ -1,22 +1,8 @@
+import { isValidPhoneNumber } from "../utils/strings.js";
+
 import fs from "fs";
 
-const REQUIRED_PATIENT_FIELDS = [
-    "phoneNumber",
-    "email",
-    "firstName",
-    "lastName",
-    "age",
-    "streetAddress",
-    "city",
-    "province",
-    "postalCode",
-    "emergencyContactName",
-    "emergencyContactPhone",
-    "emergencyContactRelationship",
-    "notes",
-    "createdAt",
-    "modifiedAt"
-];
+const REQUIRED_PATIENT_FIELDS = ["phoneNumber", "email", "firstName", "lastName", "createdAt", "modifiedAt"];
 
 /**
  * A simple patient database that stores patient records in a JSON file.
@@ -55,6 +41,10 @@ export class PatientsDB {
      */
     async writePatients(patients) {
         try {
+            if (!Array.isArray(patients)) {
+                throw new Error(`Patients must be an array. patients = ${patients}`);
+            }
+
             fs.writeFileSync(this.filePath, JSON.stringify(patients, null, 2));
         } catch (error) {
             throw new Error(`[patients-db.js] [writePatients()] - Failed to write patients to database. Error: \n${JSON.stringify(error.message, null, 2)}`);
@@ -85,6 +75,10 @@ export class PatientsDB {
      */
     async getPatientByPhoneNumber(phoneNumber) {
         try {
+            if (!isValidPhoneNumber(phoneNumber)) {
+                throw new Error(`Invalid phone number. It must be a 10-digit number. phoneNumber = ${phoneNumber}`);
+            }
+
             const patients = await this.getAllPatients();
             return patients.find((p) => p.phoneNumber === phoneNumber) || null;
         } catch (error) {
@@ -106,6 +100,10 @@ export class PatientsDB {
      */
     async addPatient(patientInfo) {
         try {
+            if (!patientInfo || typeof patientInfo !== "object") {
+                throw new Error(`Invalid patient info. It must be an object. patientInfo = ${patientInfo}`);
+            }
+
             // Validate required fields
             const missingFields = REQUIRED_PATIENT_FIELDS.filter((field) => patientInfo[field] === undefined);
             if (missingFields.length > 0) {
@@ -138,6 +136,14 @@ export class PatientsDB {
      */
     async updatePatient(phoneNumber, patientInfo) {
         try {
+            if (!isValidPhoneNumber(phoneNumber)) {
+                throw new Error(`Invalid phone number. It must be a 10-digit number. phoneNumber = ${phoneNumber}`);
+            }
+
+            if (!patientInfo || typeof patientInfo !== "object") {
+                throw new Error(`Invalid patient info. It must be an object. patientInfo = ${patientInfo}`);
+            }
+
             const patients = await this.getAllPatients();
             const patientIndex = patients.findIndex((p) => p.phoneNumber === phoneNumber);
 
@@ -167,6 +173,10 @@ export class PatientsDB {
      */
     async deletePatient(phoneNumber) {
         try {
+            if (!isValidPhoneNumber(phoneNumber)) {
+                throw new Error(`Invalid phone number. It must be a 10-digit number. phoneNumber = ${phoneNumber}`);
+            }
+
             const patients = await this.getAllPatients();
             const filteredPatients = patients.filter((p) => p.phoneNumber !== phoneNumber);
 
@@ -189,6 +199,10 @@ export class PatientsDB {
      */
     async searchPatients(query) {
         try {
+            if (!query || typeof query !== "object") {
+                throw new Error(`Invalid query. It must be an object. query = ${query}`);
+            }
+
             const patients = await this.getAllPatients();
             return patients.filter((patient) => {
                 return Object.keys(query).every((key) => {
