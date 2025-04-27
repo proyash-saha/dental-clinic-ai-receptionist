@@ -2,7 +2,7 @@ import "dotenv/config";
 
 import express from "express";
 
-import { STATUS } from "../utils/api-response";
+import { STATUS } from "../utils/api-response.js";
 import { logger } from "../utils/logger.js";
 
 const router = express.Router();
@@ -20,7 +20,7 @@ router.post("/send-link", async (req, res) => {
             });
         }
 
-        // Send appointment booking link to patient
+        // Send appointment booking link to patient through email or SMS
 
         res.status(STATUS.OK).json({
             message: "Appointment booking link was sent to patient."

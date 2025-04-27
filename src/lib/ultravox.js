@@ -4,6 +4,14 @@ import https from "node:https";
 const ULTRAVOX_API_KEY = process.env.ULTRAVOX_API_KEY;
 const ULTRAVOX_API_URL = "https://api.ultravox.ai/api";
 
+/**
+ * Creates a new call using the Ultravox API.
+ *
+ * @param {Object} callConfig - Configuration object for the call.
+ *
+ * @returns {Promise<Object>} Resolves with the created call data returned by the Ultravox API.
+ * @throws {Error} Will reject if there is a network error or if the response cannot be parsed.
+ */
 export async function createUltravoxCall(callConfig) {
     const request = https.request(`${ULTRAVOX_API_URL}/calls`, {
         method: "POST",

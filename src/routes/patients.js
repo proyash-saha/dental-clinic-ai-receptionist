@@ -2,7 +2,7 @@ import "dotenv/config";
 
 import express from "express";
 
-import { STATUS } from "../utils/api-response";
+import { STATUS } from "../utils/api-response.js";
 import { getCurrentDateTimeInUTC } from "../utils/date-time.js";
 import { logger } from "../utils/logger.js";
 import { REQUIRED_PATIENT_FIELDS, isValidPhoneNumber } from "../utils/strings.js";

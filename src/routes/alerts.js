@@ -2,7 +2,7 @@ import "dotenv/config";
 
 import express from "express";
 
-import { STATUS } from "../utils/api-response";
+import { STATUS } from "../utils/api-response.js";
 import { logger } from "../utils/logger.js";
 
 const router = express.Router();
@@ -19,7 +19,7 @@ router.post("/emergency", async (req, res) => {
             });
         }
 
-        // Send emergency notification to clinic
+        // Send emergency notification to clinic through email or SMS
 
         res.status(STATUS.OK).json({
             message: "Emergency alert sent to clinic."
