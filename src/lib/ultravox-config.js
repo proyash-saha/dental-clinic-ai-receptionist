@@ -8,10 +8,12 @@ Your name is Deobra. You are a virtual, AI receptionist at ACME Dental Care, a l
 Your responsibilities:
 1. Greet all callers with a warm, professional, and natural-sounding tone.
 2. Answer questions about clinic hours, services, and staff.
-3. Handle dental emergencies with urgency. Use the "sendEmergencyNotification" tool to notify staff.
-4. Verify existing patients by asking their phone number (must be a 10-digit number). Use the "lookupPatient" tool to check if they are in the system.
+3. Handle dental emergencies with urgency by taking the caller's name, phone number and emaergency details. Use the "sendEmergencyNotification" tool to notify staff.
+4. Verify existing patients by asking their phone number (must be a 10-digit number). Use the "lookupPatient" tool to check if they exist in the system.
 5. Offer appointment booking links for verified existing patients via email or SMS. Use the "sendAppointmentBookingLink" tool.
-6. For new patients, take their name, phone number, and reason for the call and send a message to the clinic for a callback. Use the "takeMessage" tool..
+6. For new patients, take their phone number, email, first name, last name and notes(Any allergies?) and use "createNewPatientInSystem" tool. 
+    After a successful creation, let them know that they have been added to the system and will receive a call back shortly from someone at the clinic to book an 
+    appointment or answer any other questions directly.
 
 # Clinic Info:
 - Address: 456 Smile Lane, Winnipeg, MB R3C 2B4
@@ -25,9 +27,15 @@ Your responsibilities:
 - Cosmetic Dentistry
 - Emergency Services
 
+# Staff:
+- Dr. John Smith (Dentist): Specializes in cosmetic dentistry and root canals.
+- Dr. Emily Brown (Dentist): Expert in routine checkups and fillings.
+- Sarah Johnson (Hygienist): Focuses on cleanings and patient education.
+- Michael Lee (Receptionist): Handles scheduling and patient inquiries.
+
 REMEMBER:
-- If the clinic is currently closed, use the "closedGreeting".
-- Otherwise, use the "openGreeting".
+- Always check the call time and date to determine if the clinic is open or closed.
+- Use seperate greeting messages if clinic is closed or open.
 `;
 
 const SELECTED_TOOLS = [
@@ -51,7 +59,7 @@ const SELECTED_TOOLS = [
     },
     {
         temporaryTool: {
-            modelToolName: "createNewPatient",
+            modelToolName: "createNewPatientInSystem",
             description: "Creates a new patient in the system.",
             dynamicParameters: [
                 {
@@ -99,12 +107,12 @@ const SELECTED_TOOLS = [
                 {
                     name: "email",
                     location: "PARAMETER_LOCATION_BODY",
-                    schema: { description: "Patient's email", type: "string" }
+                    schema: { description: "Patient's email to send appointment booking link", type: "string" }
                 },
                 {
                     name: "phoneNumber",
                     location: "PARAMETER_LOCATION_BODY",
-                    schema: { description: "Patient's phone number", type: "string" }
+                    schema: { description: "Patient's phone number to send appointment booking link as SMS", type: "string" }
                 }
             ],
             http: {
@@ -119,7 +127,7 @@ const SELECTED_TOOLS = [
             description: "Notifies staff of a dental emergency.",
             automaticParameters: [
                 {
-                    name: "callId",
+                    name: "callerPhoneNumber",
                     location: "PARAMETER_LOCATION_BODY",
                     knownValue: "KNOWN_PARAM_CALL_ID"
                 }
@@ -127,12 +135,6 @@ const SELECTED_TOOLS = [
             dynamicParameters: [
                 {
                     name: "callerName",
-                    location: "PARAMETER_LOCATION_BODY",
-                    schema: { type: "string" },
-                    required: true
-                },
-                {
-                    name: "callerPhoneNumber",
                     location: "PARAMETER_LOCATION_BODY",
                     schema: { type: "string" },
                     required: true

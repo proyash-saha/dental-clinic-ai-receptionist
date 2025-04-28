@@ -4,6 +4,7 @@ import express from "express";
 
 import { STATUS } from "../utils/api-response.js";
 import { logger } from "../utils/logger.js";
+import { isValidEmail, isValidPhoneNumber } from "../utils/strings.js";
 
 const router = express.Router();
 
@@ -17,6 +18,20 @@ router.post("/send-link", async (req, res) => {
             logger.error("[appointments.js] [POST /appointments/send-link] - Neither email nor phone number was provided in the request body.");
             return res.status(STATUS.BAD_REQUEST).json({
                 message: "Either email or phone number is required to send the appointment booking link."
+            });
+        }
+
+        if (email && !isValidEmail(email)) {
+            logger.error(`[appointments.js] [POST /appointments/send-link] - Missing or invalid email. email = ${email}`);
+            return res.status(STATUS.BAD_REQUEST).json({
+                message: "Missing or invalid email."
+            });
+        }
+
+        if (phoneNumber && !isValidPhoneNumber(phoneNumber)) {
+            logger.error(`[appointments.js] [POST /appointments/send-link] - Missing or invalid phone number. It must be a 10-digit number. phoneNumber = ${email}`);
+            return res.status(STATUS.BAD_REQUEST).json({
+                message: "Missing or invalid phone number. It must be a 10-digit number."
             });
         }
 

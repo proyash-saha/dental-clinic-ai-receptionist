@@ -5,7 +5,7 @@ An AI-powered receptionist for a dental clinic, leveraging **Ultravox.ai** and *
 ## Features
 
 - **Patient Management**: Add, update, delete, and search patient records.
-- **Appointment Booking**: Send booking links via email or SMS.
+- **Appointment Booking**: Send booking links via email or SMS for existing patients.
 - **Emergency Handling**: Notify staff of dental emergencies.
 - **Twilio Integration**: Handle incoming calls and connect them to the AI receptionist.
 - **Ultravox.ai Integration**: Use AI to provide natural and professional responses.
@@ -69,7 +69,7 @@ The server will run on `http://localhost:3000`.
 To execute the test suite:
 
 ```bash
-npm test
+npm run test
 ```
 
 ### 6. Lint and format code
@@ -93,6 +93,28 @@ npm run format
 - **`src/utils/`**: Utility functions for logging, date-time handling, and API responses.
 - **`src/database/`**: Manages patient data storage and retrieval.
 - **`src/lib/`**: Contains integrations with external services like Ultravox.ai.
+
+### Flow Diagram
+
+Below is the flow diagram representing the flow of the project:
+
+```mermaid
+flowchart TD
+    Patient -->|Incoming Call| Twilio
+    Twilio -->|Webhook /twilio/incoming| B[Twilio Router]
+    B -->|Create Ultravox Call| F[Ultravox Integration]
+    F -->|AI Agent| A[Ultravox Tools]
+
+    A[Ultravox Tools] -->|Patient Management| C[Patients Router]
+    A -->|Appointment Booking| D[Appointments Router]
+    A -->|Emergency Alert| E[Alerts Router]
+
+    C --> G[PatientsDB]
+    D --> H[Send Booking Link]
+    E --> I[Send Emergency Notification]
+
+    G --> J[patients.json]
+```
 
 ### UML Diagram
 

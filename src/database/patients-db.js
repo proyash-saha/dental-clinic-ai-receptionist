@@ -77,7 +77,7 @@ export class PatientsDB {
     async getPatientByPhoneNumber(phoneNumber) {
         try {
             if (!isValidPhoneNumber(phoneNumber)) {
-                throw new Error(`Invalid phone number. It must be a 10-digit number. phoneNumber = ${phoneNumber}`);
+                throw new Error(`Missing or invalid phone number. It must be a 10-digit number. phoneNumber = ${phoneNumber}`);
             }
 
             const patients = await this.getAllPatients();
@@ -141,7 +141,7 @@ export class PatientsDB {
     async updatePatient(phoneNumber, patientInfo) {
         try {
             if (!isValidPhoneNumber(phoneNumber)) {
-                throw new Error(`Invalid phone number. It must be a 10-digit number. phoneNumber = ${phoneNumber}`);
+                throw new Error(`Missing or invalid phone number. It must be a 10-digit number. phoneNumber = ${phoneNumber}`);
             }
 
             if (!patientInfo || typeof patientInfo !== "object") {
@@ -179,7 +179,7 @@ export class PatientsDB {
     async deletePatient(phoneNumber) {
         try {
             if (!isValidPhoneNumber(phoneNumber)) {
-                throw new Error(`Invalid phone number. It must be a 10-digit number. phoneNumber = ${phoneNumber}`);
+                throw new Error(`Missing or invalid phone number. It must be a 10-digit number. phoneNumber = ${phoneNumber}`);
             }
 
             const patients = await this.getAllPatients();

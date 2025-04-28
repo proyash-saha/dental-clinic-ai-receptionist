@@ -17,9 +17,9 @@ router.get("/", async (req, res) => {
         const { phoneNumber } = req.query;
 
         if (!isValidPhoneNumber(phoneNumber)) {
-            logger.error(`[patients.js] [GET /patients] - Missing or invalid format for phone number in request. Phone number: ${phoneNumber}.`);
+            logger.error(`[patients.js] [GET /patients] - Missing or invalid phone number. It must be a 10-digit number. phoneNumber = ${phoneNumber}.`);
             return res.status(STATUS.BAD_REQUEST).json({
-                message: "Invalid phone number. It must be a 10-digit number."
+                message: "Missing or invalid phone number. It must be a 10-digit number."
             });
         }
 
@@ -34,12 +34,7 @@ router.get("/", async (req, res) => {
 
         res.status(STATUS.OK).json({
             message: "Patient found.",
-            patient: {
-                phoneNumber: patient.phoneNumber,
-                email: patient.email,
-                firstName: patient.firstName,
-                lastName: patient.lastName
-            }
+            patient
         });
     } catch (error) {
         logger.error(`[patients.js] [GET /patients] - Error while trying to retrieve a patient. \nError: ${JSON.stringify(error, null, 2)}`);
@@ -63,6 +58,7 @@ router.post("/", async (req, res) => {
 
         const missingInfo = REQUIRED_PATIENT_FIELDS.filter((field) => patientInfo[field] === undefined);
         if (missingInfo.length > 0) {
+            logger.error(`[patients.js] [POST /patients] - Missing required info for new patient: ${missingInfo.join(", ")}`);
             return res.status(STATUS.BAD_REQUEST).json({
                 message: `Missing required info for new patient: ${missingInfo.join(", ")}`
             });

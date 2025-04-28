@@ -99,7 +99,7 @@ describe("PatientsDB", () => {
                 await db.getPatientByPhoneNumber("1234");
             } catch (error) {
                 expect(error).toBeInstanceOf(Error);
-                expect(error.message).toContain("Invalid phone number. It must be a 10-digit number.");
+                expect(error.message).toContain("Missing or invalid phone number. It must be a 10-digit number.");
             }
         });
 
@@ -188,7 +188,7 @@ describe("PatientsDB", () => {
                 await db.updatePatient("1234", updatedPatientInfo);
             } catch (error) {
                 expect(error).toBeInstanceOf(Error);
-                expect(error.message).toContain("Invalid phone number. It must be a 10-digit number.");
+                expect(error.message).toContain("Missing or invalid phone number. It must be a 10-digit number.");
             }
         });
 
@@ -232,7 +232,7 @@ describe("PatientsDB", () => {
                 await db.deletePatient("1234");
             } catch (error) {
                 expect(error).toBeInstanceOf(Error);
-                expect(error.message).toContain("Invalid phone number. It must be a 10-digit number.");
+                expect(error.message).toContain("Missing or invalid phone number. It must be a 10-digit number.");
             }
         });
 
