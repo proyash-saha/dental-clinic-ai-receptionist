@@ -14,24 +14,24 @@ router.post("/send-link", async (req, res) => {
     try {
         const { email, phoneNumber } = req.body;
 
-        if (!email || !phoneNumber) {
+        if (!email && !phoneNumber) {
             logger.error("[appointments.js] [POST /appointments/send-link] - Neither email nor phone number was provided in the request body.");
             return res.status(STATUS.BAD_REQUEST).json({
-                message: "Either email or phone number is required to send the appointment booking link."
+                error: "Either email or phone number is required to send the appointment booking link."
             });
         }
 
         if (email && !isValidEmail(email)) {
             logger.error(`[appointments.js] [POST /appointments/send-link] - Missing or invalid email. email = ${email}`);
             return res.status(STATUS.BAD_REQUEST).json({
-                message: "Missing or invalid email."
+                error: "Missing or invalid email."
             });
         }
 
         if (phoneNumber && !isValidPhoneNumber(phoneNumber)) {
             logger.error(`[appointments.js] [POST /appointments/send-link] - Missing or invalid phone number. It must be a 10-digit number. phoneNumber = ${email}`);
             return res.status(STATUS.BAD_REQUEST).json({
-                message: "Missing or invalid phone number. It must be a 10-digit number."
+                error: "Missing or invalid phone number. It must be a 10-digit number."
             });
         }
 
@@ -41,9 +41,8 @@ router.post("/send-link", async (req, res) => {
             message: "Appointment booking link was sent to patient."
         });
     } catch (error) {
-        logger.error(`[appointments.js] [POST /appointments/send-link] - Error while trying to send the appointment booking link. \nError: ${JSON.stringify(error, null, 2)}`);
+        logger.error(`[appointments.js] [POST /appointments/send-link] - Could not send the appointment booking link. \nError: ${error.message}`);
         res.status(STATUS.INTERNAL_SERVER_ERROR).json({
-            message: "Internal Server Error.",
             error: error.message
         });
     }

@@ -1,5 +1,4 @@
-// eslint-disable-next-line @stylistic/js/max-len
-export const REQUIRED_PATIENT_FIELDS = ["phoneNumber", "email", "firstName", "lastName", "notes", "initialCallbackComplete", "createdAt", "modifiedAt"];
+export const REQUIRED_PATIENT_FIELDS = ["phoneNumber", "email", "firstName", "lastName", "initialCallbackComplete", "createdAt", "modifiedAt"];
 
 export function isValidPhoneNumber(phoneNumber) {
     const phoneNumberRegex = /^\d{10}$/;

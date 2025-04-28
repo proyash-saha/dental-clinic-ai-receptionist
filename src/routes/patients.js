@@ -19,7 +19,7 @@ router.get("/", async (req, res) => {
         if (!isValidPhoneNumber(phoneNumber)) {
             logger.error(`[patients.js] [GET /patients] - Missing or invalid phone number. It must be a 10-digit number. phoneNumber = ${phoneNumber}.`);
             return res.status(STATUS.BAD_REQUEST).json({
-                message: "Missing or invalid phone number. It must be a 10-digit number."
+                error: "Missing or invalid phone number. It must be a 10-digit number."
             });
         }
 
@@ -28,7 +28,7 @@ router.get("/", async (req, res) => {
         if (!patient || typeof patient !== "object" || Object.keys(patient).length === 0) {
             logger.error(`[patients.js] [GET /patients] - Patient not found for phone number: ${phoneNumber}.`);
             return res.status(STATUS.NOT_FOUND).json({
-                message: "Patient not found."
+                error: "Patient not found."
             });
         }
 
@@ -37,9 +37,8 @@ router.get("/", async (req, res) => {
             patient
         });
     } catch (error) {
-        logger.error(`[patients.js] [GET /patients] - Error while trying to retrieve a patient. \nError: ${JSON.stringify(error, null, 2)}`);
+        logger.error(`[patients.js] [GET /patients] - Could not retrieve patient. \nError: ${error.message}`);
         res.status(STATUS.INTERNAL_SERVER_ERROR).json({
-            message: "Internal Server Error.",
             error: error.message
         });
     }
@@ -60,7 +59,7 @@ router.post("/", async (req, res) => {
         if (missingInfo.length > 0) {
             logger.error(`[patients.js] [POST /patients] - Missing required info for new patient: ${missingInfo.join(", ")}`);
             return res.status(STATUS.BAD_REQUEST).json({
-                message: `Missing required info for new patient: ${missingInfo.join(", ")}`
+                error: `Missing required info for new patient: ${missingInfo.join(", ")}`
             });
         }
 
@@ -76,9 +75,8 @@ router.post("/", async (req, res) => {
             message: "Patient created in database."
         });
     } catch (error) {
-        logger.error(`[patients.js] [POST /patients] - Error while trying to create a patient in database. \nError: ${JSON.stringify(error, null, 2)}`);
+        logger.error(`[patients.js] [POST /patients] - Could not create a new patient in database. \nError: ${error.message}`);
         res.status(STATUS.INTERNAL_SERVER_ERROR).json({
-            message: "Internal Server Error.",
             error: error.message
         });
     }

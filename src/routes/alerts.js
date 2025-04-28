@@ -19,7 +19,7 @@ router.post("/emergency", async (req, res) => {
         if (missingInfo.length > 0) {
             logger.error(`[alerts.js] [POST /alerts/emergency]- Missing required info for emergency alert: ${missingInfo.join(", ")}.`);
             return res.status(STATUS.BAD_REQUEST).json({
-                message: `Missing required info for emergency alert: ${missingInfo.join(", ")}`
+                error: `Missing required info for emergency alert: ${missingInfo.join(", ")}`
             });
         }
 
@@ -29,9 +29,8 @@ router.post("/emergency", async (req, res) => {
             message: "Emergency alert sent to clinic."
         });
     } catch (error) {
-        logger.error(`[alerts.js] [POST /alerts/emergency] - Error while trying to send an emergency alert to clinic. \nError: ${JSON.stringify(error, null, 2)}`);
+        logger.error(`[alerts.js] [POST /alerts/emergency] - Could not send an emergency alert to clinic. \nError: ${error.message}`);
         res.status(STATUS.INTERNAL_SERVER_ERROR).json({
-            message: "Internal Server Error.",
             error: error.message
         });
     }

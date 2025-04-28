@@ -10,7 +10,6 @@ const mockPatient = {
     email: "john@example.com",
     firstName: "John",
     lastName: "Doe",
-    notes: "Test patient",
     initialCallbackComplete: false,
     createdAt: "2023-10-01T12:00:00Z",
     modifiedAt: "2023-10-01T12:00:00Z"
