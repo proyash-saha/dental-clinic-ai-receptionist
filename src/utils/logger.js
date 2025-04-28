@@ -98,12 +98,13 @@ function getDateTime() {
 
     let hours = now.getHours();
     const minutes = String(now.getMinutes()).padStart(2, "0");
+    const seconds = String(now.getSeconds()).padStart(2, "0"); // <-- Added seconds
     const ampm = hours >= 12 ? "PM" : "AM";
 
     hours = hours % 12 || 12; // Convert 24-hour format to 12-hour format
     const formattedHours = String(hours).padStart(2, "0");
 
-    return `${year}-${month}-${day} ${formattedHours}:${minutes} ${ampm}`;
+    return `${year}-${month}-${day} ${formattedHours}:${minutes}:${seconds} ${ampm}`;
 }
 
 export const logger = {
@@ -112,7 +113,7 @@ export const logger = {
      * @param {String|Object} message - The message to log.
      */
     info: (message) => {
-        const logMessage = `[INFO] [${getDateTime()}] \n${formatMessage(message)}`;
+        const logMessage = `\n[INFO] [${getDateTime()}] \n${formatMessage(message)}`;
         console.log(chalk.blue(logMessage));
         writeLogToFile(logMessage);
     },
@@ -121,7 +122,7 @@ export const logger = {
      * @param {String|Object} message - The message to log.
      */
     debug: (message) => {
-        const logMessage = `[DEBUG] [${getDateTime()}] \n${formatMessage(message)}`;
+        const logMessage = `\n[DEBUG] [${getDateTime()}] \n${formatMessage(message)}`;
         console.log(chalk.green(logMessage));
         writeLogToFile(logMessage);
     },
@@ -130,7 +131,7 @@ export const logger = {
      * @param {String|Object} message - The message to log.
      */
     warn: (message) => {
-        const logMessage = `[WARN] [${getDateTime()}] \n${formatMessage(message)}`;
+        const logMessage = `\n[WARN] [${getDateTime()}] \n${formatMessage(message)}`;
         console.warn(chalk.yellow(logMessage));
         writeLogToFile(logMessage);
     },
@@ -139,7 +140,7 @@ export const logger = {
      * @param {String|Object} message - The message to log.
      */
     error: (message) => {
-        const logMessage = `[ERROR] [${getDateTime()}] \n${formatMessage(message)}`;
+        const logMessage = `\n[ERROR] [${getDateTime()}] \n${formatMessage(message)}`;
         console.error(chalk.red(logMessage));
         writeLogToFile(logMessage);
     }
